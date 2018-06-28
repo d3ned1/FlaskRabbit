@@ -1,0 +1,23 @@
+version: "3.2"
+services:
+    rabbitmq-server:
+        build: ./rabbitmq-server
+
+    api-service:
+        build: ./API_service
+        depends_on:
+            - rabbitmq-server
+        tty: true
+        # Port 8001 on host to port 8001 of container.
+        ports:
+            - "8001:8001"
+    db:
+        image: "postgres:10"
+        networks:
+            - db_nw
+
+    consumer-service:
+        build: ./Consumer_service
+        depends_on:
+            - rabbitmq-server
+        tty: true
