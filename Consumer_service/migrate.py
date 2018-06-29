@@ -1,7 +1,7 @@
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
-from Consumer_service.models.movie import db
-from Consumer_service.run_consumer_service import initialize_app, app
+from models.movie import db
+from run_consumer_service import initialize_app, app
 
 app = initialize_app(app, migrate=True)
 

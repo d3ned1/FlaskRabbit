@@ -4,10 +4,10 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 SQLALCHEMY_ECHO = False
 SQLALCHEMY_TRACK_MODIFICATIONS = True
-SQLALCHEMY_DATABASE_URI = "postgresql://postgres:password@localhost:5433/postgres"
+SQLALCHEMY_DATABASE_URI = "postgresql://postgres:d3ned1xxx@localhost:5432/mydb"
 
 # Flask settings
-FLASK_SERVER_NAME = 'localhost:5000'
+FLASK_SERVER_NAME = 'localhost:8000'
 FLASK_DEBUG = True  # Do not use debug mode in production
 
 # Flask-Restplus settings

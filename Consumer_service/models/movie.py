@@ -1,3 +1,5 @@
+import datetime
+
 from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
 
@@ -21,3 +23,14 @@ class Movie(db.Model):
 
     def __repr__(self):
         return '<Movie %s>' % self.title
+
+    @property
+    def serialize(self):
+        """Return object data in easily serializeable format"""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'rate': self.rate,
+            'length': self.length,
+            'year': datetime.datetime.strftime(self.year, "%Y-%m-%d"),
+        }

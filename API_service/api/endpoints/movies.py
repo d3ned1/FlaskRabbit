@@ -1,3 +1,4 @@
+import json
 import logging
 
 from flask import request
@@ -7,11 +8,13 @@ from API_service.api.parsers import pagination_arguments
 from API_service.api.api import api
 from API_service.models.movie import Movie
 
-from API_service.services.producer_handler import emit_data_update, emit_data_create, emit_data_delete, emit_data_get
+from API_service.services.producer_handler import MovieRPC
 
 log = logging.getLogger(__name__)
 
 namespace = api.namespace('movies', description='Movies can be served here')
+
+movie_rpc = MovieRPC()
 
 
 @namespace.route('/')
@@ -26,9 +29,10 @@ class MovieResource(Resource):
         args = pagination_arguments.parse_args(request)
         page = args.get('page', 1)
         per_page = args.get('per_page', 10)
-        emit_data_get(id=None)
-        movies_query = Movie.query
-        movies_page = movies_query.paginate(page, per_page, error_out=False)
+        movies_query = movie_rpc.call(http_method='GET')
+        movies_page = json.loads(movies_query.decode('utf8'))
+        # movies_query = Movie.query.order_by('id')
+        # movies_page = movies_query.paginate(page, per_page, error_out=False)
 
         return movies_page
 
@@ -37,7 +41,7 @@ class MovieResource(Resource):
         """
         Create new movie.
         """
-        emit_data_create(request.json)
+        movie_rpc.call(data=request.json, http_method='POST')
         return None, 201
 
 
@@ -50,7 +54,7 @@ class MovieItem(Resource):
         """
         Return movie item.
         """
-        emit_data_get(id)
+        return json.loads(movie_rpc.call(id=id, http_method='GET').decode('utf8'))
 
     @api.expect(movie)
     @api.response(204, 'Movie successfully updated.')
@@ -59,7 +63,7 @@ class MovieItem(Resource):
         Update movie item.
         """
         data = request.json
-        emit_data_update(id, data)
+        movie_rpc.call(id=id, data=data, http_method='PATCH')
         return None, 204
 
     @api.response(204, 'Movie successfully deleted.')
@@ -67,5 +71,5 @@ class MovieItem(Resource):
         """
         Deletes movie item.
         """
-        emit_data_delete(id)
+        movie_rpc.call(id=id, http_method='DELETE')
         return None, 204

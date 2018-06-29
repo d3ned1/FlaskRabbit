@@ -8,52 +8,81 @@ from Consumer_service.run_consumer_service import initialize_app, app
 app = initialize_app(app, migrate=True)
 app.app_context().push()
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(
+    host='localhost'))
+
 channel = connection.channel()
-exchange_name = 'exchange.name'
-routing_key = 'exchange.name'
 
-channel.exchange_declare(exchange=exchange_name,
-                         exchange_type='topic', durable=True)
-
-result = channel.queue_declare(queue=routing_key, exclusive=True)
-queue_name = result.method.queue
-
-channel.queue_bind(exchange=exchange_name,
-                   queue=queue_name)
+channel.queue_declare(queue='rpc_queue')
 
 
+def process_body(id, data, http_method, ):
+    response = 'Empty response'
+    if http_method == 'GET':
+        if id is not None:
+            try:
+                response = Movie.query.filter(Movie.id == id).one().serialize
+            except Exception as exc:
+                response = {'exceptioin': str(exc)}
+        elif id is None:
+            response = [i.serialize for i in Movie.query.order_by('id').all()]
+    if http_method == 'POST' and data:
+        response = create_movie(data)
+    if http_method == 'PATCH' and id:
+        response = update_movie(id, data)
+    if http_method == 'DELETE' and id:
+        response = delete_movie(id)
+    return response
 
 
-def callback(ch, method, properties, body):
+def on_request(ch, method, props, body):
     try:
         body = json.loads(body.decode('utf8'))
-        if hasattr(body, 'method'):
-            method = body['method']
-        if hasattr(body, 'data'):
-            data = body['data']
-        if hasattr(body, 'id'):
-            id = body['id']
+        print(" [ OK ] Received body %s  OK ]" % body)
     except Exception as exc:
-        pass  # TODO
-    if body and method:
-        if method == 'GET' and id:
-            if id is not None:
-                pass
-            elif id is None:
-                movies_query = Movie.query
-        if method == 'POST' and data:
-            create_movie(body['data'])
-        if body['method'] == 'PATCH':
-            update_movie(body['id'], )
-        if body['method'] == 'DELETE':
-            pass
-        print(" [x] Received %r" % body)
+        print(" [ ! ] Problem due to receiving: %exc [ ! ]" % exc)
+    if body:
+        http_method = body['method']
+        data = body['data']
+        id = body['id']
+        response = process_body(id, data, http_method)
+    else:
+        response = {'error': 'Empty body received'}
+
+    ch.basic_publish(exchange='',
+                     routing_key=props.reply_to,
+                     properties=pika.BasicProperties(correlation_id=props.correlation_id),
+                     body=json.dumps(response))
+    ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
-channel.basic_consume(callback,
-                      queue=routing_key,
-                      no_ack=True)
+channel.basic_qos(prefetch_count=1)
+channel.basic_consume(on_request, queue='rpc_queue')
 
-print(' [*] Waiting for messages. To exit press CTRL+C')
+print(" [ ? ] Waiting for requests [ ? ]")
 channel.start_consuming()
+
+# exchange_name = 'exchange.name'
+# routing_key = 'exchange.name'
+#
+# channel.exchange_declare(exchange=exchange_name,
+#                          exchange_type='topic', durable=True)
+#
+# result = channel.queue_declare(queue=routing_key, exclusive=True)
+# queue_name = result.method.queue
+#
+# channel.queue_bind(exchange=exchange_name,
+#                    queue=queue_name)
+#
+#
+#
+#
+
+#
+#
+# channel.basic_consume(callback,
+#                       queue=routing_key,
+#                       no_ack=True)
+#
+# print(' [*] Waiting for messages. To exit press CTRL+C')
+# channel.start_consuming()
