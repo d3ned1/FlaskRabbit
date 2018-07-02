@@ -23,15 +23,34 @@ def process_body(id, data, http_method, ):
             try:
                 response = Movie.query.filter(Movie.id == id).one().serialize
             except Exception as exc:
-                response = {'exceptioin': str(exc)}
+                response = {'exception': str(exc)}
         elif id is None:
-            response = [i.serialize for i in Movie.query.order_by('id').all()]
+            try:
+                movie_query = Movie.query.order_by('id').paginate(page=data['page'], per_page=data['per_page'])
+                response = {
+                "items": [i.serialize for i in movie_query.items],
+                "page": movie_query.page,
+                "pages": movie_query.pages,
+                "per_page": movie_query.per_page,
+                "total": movie_query.total
+                }
+            except Exception as exc:
+                response = {'exception': str(exc)}
     if http_method == 'POST' and data:
-        response = create_movie(data)
+        try:
+            response = create_movie(data)
+        except Exception as exc:
+            response = {'exception': str(exc)}
     if http_method == 'PATCH' and id:
-        response = update_movie(id, data)
+        try:
+            response = update_movie(id, data)
+        except Exception as exc:
+            response = {'exception': str(exc)}
     if http_method == 'DELETE' and id:
-        response = delete_movie(id)
+        try:
+            response = delete_movie(id)
+        except Exception as exc:
+            response = {'exception': str(exc)}
     return response
 
 
