@@ -1,5 +1,3 @@
-import logging.config
-import os
 from flask import Flask
 from Consumer_service import settings
 from Consumer_service.models.movie import db

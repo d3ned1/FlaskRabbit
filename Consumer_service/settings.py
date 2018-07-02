@@ -4,7 +4,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 SQLALCHEMY_ECHO = False
 SQLALCHEMY_TRACK_MODIFICATIONS = True
-SQLALCHEMY_DATABASE_URI = "postgresql://postgres:d3ned1xxx@localhost:5432/mydb"
+SQLALCHEMY_DATABASE_URI = "postgresql://postgres:password@localhost:5433/postgres"
 
 # Flask settings
 FLASK_SERVER_NAME = 'localhost:8000'

@@ -17,7 +17,7 @@ channel.queue_declare(queue='rpc_queue')
 
 
 def process_body(id, data, http_method, ):
-    response = 'Empty response'
+    response = {'response': 'Empty response'}
     if http_method == 'GET':
         if id is not None:
             try:
@@ -28,11 +28,11 @@ def process_body(id, data, http_method, ):
             try:
                 movie_query = Movie.query.order_by('id').paginate(page=data['page'], per_page=data['per_page'])
                 response = {
-                "items": [i.serialize for i in movie_query.items],
-                "page": movie_query.page,
-                "pages": movie_query.pages,
-                "per_page": movie_query.per_page,
-                "total": movie_query.total
+                    "items": [i.serialize for i in movie_query.items],
+                    "page": movie_query.page,
+                    "pages": movie_query.pages,
+                    "per_page": movie_query.per_page,
+                    "total": movie_query.total
                 }
             except Exception as exc:
                 response = {'exception': str(exc)}
@@ -70,7 +70,8 @@ def on_request(ch, method, props, body):
 
     ch.basic_publish(exchange='',
                      routing_key=props.reply_to,
-                     properties=pika.BasicProperties(correlation_id=props.correlation_id),
+                     properties=pika.BasicProperties(correlation_id=props.correlation_id,
+                                                     content_type='application/json'),
                      body=json.dumps(response))
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
@@ -80,28 +81,3 @@ channel.basic_consume(on_request, queue='rpc_queue')
 
 print(" [ ? ] Waiting for requests [ ? ]")
 channel.start_consuming()
-
-# exchange_name = 'exchange.name'
-# routing_key = 'exchange.name'
-#
-# channel.exchange_declare(exchange=exchange_name,
-#                          exchange_type='topic', durable=True)
-#
-# result = channel.queue_declare(queue=routing_key, exclusive=True)
-# queue_name = result.method.queue
-#
-# channel.queue_bind(exchange=exchange_name,
-#                    queue=queue_name)
-#
-#
-#
-#
-
-#
-#
-# channel.basic_consume(callback,
-#                       queue=routing_key,
-#                       no_ack=True)
-#
-# print(' [*] Waiting for messages. To exit press CTRL+C')
-# channel.start_consuming()
