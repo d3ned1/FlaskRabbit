@@ -2,13 +2,6 @@ import pika
 import json
 import uuid
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
-channel = connection.channel()
-exchange_name = 'exchange.name'
-routing_key = 'exchange.name'
-
-channel.exchange_declare(exchange=exchange_name, exchange_type='topic', durable=True)
-
 
 class MovieRPC(object):
 

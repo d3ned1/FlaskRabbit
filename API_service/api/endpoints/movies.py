@@ -37,25 +37,33 @@ class MovieResource(Resource):
             logger.warning(exc)
             return str(exc), 403
 
+    @api.response(204, 'Movie successfully created.')
     @api.expect(movie)
     def post(self):
         """
         Make POST request to create new movie object.
         """
-        movie_rpc.call(data=request.json, http_method='POST')
-        return None, 201
+        try:
+            movie_rpc.call(data=request.json, http_method='POST')
+            return None, 204
+        except Exception as exc:
+            logger.warning(exc)
+            return str(exc), 404
 
 
 @namespace.route('/<int:id>')
 @api.response(404, 'Movie can not be found.')
 class MovieItem(Resource):
-
     @api.marshal_with(movie)
     def get(self, id):
         """
         Make specified GET request using ID to obtain particular movie item.
         """
-        return json.loads(movie_rpc.call(id=id, http_method='GET').decode('utf8'))
+        try:
+            return json.loads(movie_rpc.call(id=id, http_method='GET').decode('utf8'))
+        except Exception as exc:
+            logger.warning(exc)
+            return str(exc), 404
 
     @api.expect(movie)
     @api.response(204, 'Movie successfully updated.')
@@ -63,14 +71,22 @@ class MovieItem(Resource):
         """
         Make PUT request to update particular movie item.
         """
-        data = request.json
-        movie_rpc.call(id=id, data=data, http_method='PATCH')
-        return None, 204
+        try:
+            data = request.json
+            movie_rpc.call(id=id, data=data, http_method='PATCH')
+            return None, 204
+        except Exception as exc:
+            logger.warning(exc)
+            return str(exc), 404
 
     @api.response(204, 'Movie successfully deleted.')
     def delete(self, id):
         """
         Make DELETE request to remove movie item from movies database.
         """
-        movie_rpc.call(id=id, http_method='DELETE')
-        return None, 204
+        try:
+            movie_rpc.call(id=id, http_method='DELETE')
+            return None, 204
+        except Exception as exc:
+            logger.warning(exc)
+            return str(exc), 404

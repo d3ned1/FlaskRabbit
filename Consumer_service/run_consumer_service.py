@@ -1,11 +1,12 @@
+import logging
 from flask import Flask
 from Consumer_service import settings
 from Consumer_service.models.movie import db
+from Consumer_service.services.receive import ConsumerRPC
 
 app = Flask(__name__)
-# logging_conf_path = os.path.normpath(os.path.join(os.path.dirname(__file__), '../logging.conf'))
-# logging.config.fileConfig(logging_conf_path)
-# log = logging.getLogger(__name__)
+
+logger = logging.getLogger(__name__)
 
 
 def configure_app(flask_app):
@@ -28,6 +29,10 @@ def initialize_app(flask_app, migrate=False):
 def main():
     initialize_app(app)
     app.run(debug=settings.FLASK_DEBUG)
+    logging_format = ' %(asctime)s | %(levelname)s | %(name)s | %(message)s'
+    logging.basicConfig(level=logging.DEBUG, format=logging_format)
+    start_consumer = ConsumerRPC()
+    start_consumer.call()
 
 
 if __name__ == "__main__":
