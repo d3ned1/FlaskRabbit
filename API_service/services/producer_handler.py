@@ -25,7 +25,7 @@ class MovieRPC(object):
                                    properties=pika.BasicProperties(
                                        reply_to=self.callback_queue,
                                        correlation_id=self.correllation_id,
-                                       content_type='application/json'),
+                                       ),
                                    body=json.dumps({'id': id, 'method': http_method, 'data': data}))
         while self.response is None:
             self.connection.process_data_events()

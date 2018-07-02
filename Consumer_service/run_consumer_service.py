@@ -22,6 +22,10 @@ def configure_app(flask_app):
 def initialize_app(flask_app, migrate=False):
     configure_app(flask_app)
     db.init_app(flask_app)
+    flask_app.app_context().push()
+    start_consumer = ConsumerRPC()
+    start_consumer.call()
+
     if migrate:
         return app
 
@@ -29,10 +33,6 @@ def initialize_app(flask_app, migrate=False):
 def main():
     initialize_app(app)
     app.run(debug=settings.FLASK_DEBUG)
-    logging_format = ' %(asctime)s | %(levelname)s | %(name)s | %(message)s'
-    logging.basicConfig(level=logging.DEBUG, format=logging_format)
-    start_consumer = ConsumerRPC()
-    start_consumer.call()
 
 
 if __name__ == "__main__":

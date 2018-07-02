@@ -53,20 +53,17 @@ def process_body(id, data, http_method, ):
 
 class ConsumerRPC(object):
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
-        self.response = {'response': 'Empty response'}
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
         self.channel = self.connection.channel()
-
-    def call(self):
         self.channel.queue_declare(queue='rpc_queue')
 
         self.channel.basic_qos(prefetch_count=1)
+
+    def call(self):
         self.channel.basic_consume(self.on_request, queue='rpc_queue')
         self.channel.start_consuming()
-        logger.info(" [ ? ] Waiting... [ ? ]")
 
-    def on_request(self, ch, method, props, body):
+    def on_request(self, chan, method, props, body):
         try:
             body = json.loads(body.decode('utf8'))
             logger.info(" [ OK ] Received body {} OK ]".format(body))
@@ -83,9 +80,9 @@ class ConsumerRPC(object):
         else:
             self.response = {'error': 'Empty body received'}
 
-        self.channel.basic_publish(exchange='',
-                                   routing_key=props.reply_to,
-                                   properties=pika.BasicProperties(correlation_id=props.correlation_id,
-                                                                   content_type='application/json'),
-                                   body=json.dumps(self.response))
-        self.channel.basic_ack(delivery_tag=method.delivery_tag)
+        chan.basic_publish(exchange='',
+                           routing_key=props.reply_to,
+                           properties=pika.BasicProperties(correlation_id=props.correlation_id,
+                                                           ),
+                           body=json.dumps(self.response))
+        chan.basic_ack(delivery_tag=method.delivery_tag)
