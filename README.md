@@ -4,8 +4,7 @@ Python 3.6.5, Postgresql 10
 Simple CRUD app based on flask and rabbitmq.
 At the moment works syncroniously.
 
-0)
-"cd ~/FlaskRabbit", then "pip install -r requirements.txt"
+0) "cd ~/FlaskRabbit", then "pip install -r requirements.txt"
 
 1) Add your database (e.g postgresql):
 
