@@ -1,6 +1,12 @@
 # FlaskRabbit
+Python 3.6.5, Postgresql 10
 
-1)Add your database (e.g postgresql):
+Simple CRUD app based on flask and rabbitmq.
+At the moment works syncroniously.
+
+0) "cd ~/FlaskRabbit", then "pip install -r requirements.txt"
+
+1) Add your database (e.g postgresql):
 
 Consumer_service/settings.py
 
@@ -17,7 +23,7 @@ SQLALCHEMY_DATABASE_URI = "postgresql://{0}:{1}@{2}:{3}/{4}".format(USER,
                                                                     DB_NAME)
                                                                     
 
-2)Choose server and port
+2) Choose server and port
 
 Consumer_service/settings.py
 API_service/settings.py
@@ -25,3 +31,7 @@ API_service/settings.py
 e.g:
 
 FLASK_SERVER_NAME = 'your_host:your_port'
+
+3) python run_api_service.py
+4) python run_consumer_service.py
+5) open your host/api/
