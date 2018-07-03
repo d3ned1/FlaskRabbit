@@ -3,11 +3,11 @@ import logging
 
 from flask import request
 from flask_restplus import Resource
-from API_service.api.serializers import movie, page_of_movies
-from API_service.api.parsers import pagination_arguments
-from API_service.api.api import api
+from api.serializers import movie, page_of_movies
+from api.parsers import pagination_arguments
+from api.api import api
 
-from API_service.services.producer_handler import MovieRPC
+from services.producer_handler import MovieRPC
 
 logger = logging.getLogger(__name__)
 

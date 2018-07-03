@@ -2,8 +2,8 @@ import json
 import logging
 import pika
 
-from Consumer_service.models.movie import Movie
-from Consumer_service.resources.movieResource import create_movie, delete_movie, update_movie
+from models.movie import Movie
+from resources.movieResource import create_movie, delete_movie, update_movie
 
 logger = logging.getLogger(__name__)
 

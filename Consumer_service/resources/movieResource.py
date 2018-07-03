@@ -1,4 +1,4 @@
-from Consumer_service.models.movie import db, Movie
+from models.movie import db, Movie
 
 
 def create_movie(data):
