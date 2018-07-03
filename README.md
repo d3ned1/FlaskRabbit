@@ -5,8 +5,7 @@ Simple CRUD app based on flask and rabbitmq.
 At the moment works syncroniously.
 
 0)
-cd ~/FlaskRabbit
-pip install -r requirements.txt
+"cd ~/FlaskRabbit", then "pip install -r requirements.txt"
 
 1) Add your database (e.g postgresql):
 
