@@ -23,12 +23,12 @@ def configure_app(flask_app):
 def initialize_app(flask_app, migrate=False):
     configure_app(flask_app)
     db.init_app(flask_app)
-    flask_app.app_context().push()
-    start_consumer_1 = ConsumerRPC()
-    # start_consumer_2 = ConsumerRPC()
-
-    start_consumer_1.call()
-    # start_consumer_2.call()
+    if not migrate:
+        flask_app.app_context().push()
+        start_consumer_1 = ConsumerRPC()
+        # start_consumer_2 = ConsumerRPC()
+        start_consumer_1.call()
+        # start_consumer_2.call()
 
     if migrate:
         return app

@@ -14,7 +14,7 @@ DB_HOST = 'localhost'
 DB_PORT = 5432
 DB_NAME = 'mydb'
 USER = 'postgres'
-PASSWORD = 'password'
+PASSWORD = ''
 
 SQLALCHEMY_DATABASE_URI = "postgresql://{0}:{1}@{2}:{3}/{4}".format(USER,
                                                                     PASSWORD,

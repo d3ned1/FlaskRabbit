@@ -23,7 +23,7 @@ SQLALCHEMY_DATABASE_URI = "postgresql://{0}:{1}@{2}:{3}/{4}".format(USER,
                                                                     DB_NAME)
                                                                     
 
-2) Choose server and port
+2.1) Choose server and port
 
 Consumer_service/settings.py
 API_service/settings.py
@@ -32,6 +32,12 @@ e.g:
 
 FLASK_SERVER_NAME = 'your_host:your_port'
 
-3) python run_api_service.py
-4) python run_consumer_service.py
-5) open your host/api/
+2.2) Migrate to database:
+python migrate.py db init;
+python migrate.py db migrate;
+python migrate db upgrade
+
+3) Run apps:
+3.1) python run_api_service.py
+3.2) python run_consumer_service.py
+4) Open your host/api/
