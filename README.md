@@ -8,7 +8,7 @@ At the moment works syncroniously.
 cd ~/FlaskRabbit
 pip install -r requirements.txt
 
-1)Add your database (e.g postgresql):
+1) Add your database (e.g postgresql):
 
 Consumer_service/settings.py
 
@@ -25,7 +25,7 @@ SQLALCHEMY_DATABASE_URI = "postgresql://{0}:{1}@{2}:{3}/{4}".format(USER,
                                                                     DB_NAME)
                                                                     
 
-2)Choose server and port
+2) Choose server and port
 
 Consumer_service/settings.py
 API_service/settings.py
