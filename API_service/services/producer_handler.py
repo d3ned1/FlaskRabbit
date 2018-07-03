@@ -6,7 +6,7 @@ import uuid
 class MovieRPC(object):
 
     def __init__(self):
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', port=5672))
         self.channel = self.connection.channel()
         result = self.channel.queue_declare(exclusive=True)
         self.callback_queue = result.method.queue
@@ -25,6 +25,7 @@ class MovieRPC(object):
                                    properties=pika.BasicProperties(
                                        reply_to=self.callback_queue,
                                        correlation_id=self.correllation_id,
+                                       content_type='application/json'
                                        ),
                                    body=json.dumps({'id': id, 'method': http_method, 'data': data}))
         while self.response is None:

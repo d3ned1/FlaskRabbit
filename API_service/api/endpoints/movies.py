@@ -5,7 +5,7 @@ from flask import request
 from flask_restplus import Resource
 from API_service.api.serializers import movie, page_of_movies
 from API_service.api.parsers import pagination_arguments
-from API_service.api.api import api, NoResultFound
+from API_service.api.api import api
 
 from API_service.services.producer_handler import MovieRPC
 
@@ -32,10 +32,14 @@ class MovieResource(Resource):
             data = {'page': page, 'per_page': per_page}
             movies_query = movie_rpc.call(http_method='GET', data=data)
             movies_page = json.loads(movies_query.decode('utf8'))
-            return movies_page
+            if 'exception' in movies_page:
+                logger.warning(movies_page['exception'])
+                return {'error': movies_page['exception']}, movies_page['code']
+            else:
+                return movies_page
         except Exception as exc:
             logger.warning(exc)
-            return str(exc), 403
+            return None, 404
 
     @api.response(204, 'Movie successfully created.')
     @api.expect(movie)
@@ -44,11 +48,15 @@ class MovieResource(Resource):
         Make POST request to create new movie object.
         """
         try:
-            movie_rpc.call(data=request.json, http_method='POST')
-            return None, 204
+            response = movie_rpc.call(data=request.json, http_method='POST').decode('utf8')
+            if 'exception' in response:
+                logger.warning(response['exception'])
+                return {'error': response['exception']}, response['code']
+            else:
+                return None, 204
         except Exception as exc:
             logger.warning(exc)
-            return str(exc), 404
+            return None, 404
 
 
 @namespace.route('/<int:id>')
@@ -60,10 +68,15 @@ class MovieItem(Resource):
         Make specified GET request using ID to obtain particular movie item.
         """
         try:
-            return json.loads(movie_rpc.call(id=id, http_method='GET').decode('utf8'))
+            response = json.loads(movie_rpc.call(id=id, http_method='GET').decode('utf8'))
+            if 'exception' in response:
+                logger.warning(response['exception'])
+                return {'error': response['exception']}, response['code']
+            else:
+                return response, 200
         except Exception as exc:
             logger.warning(exc)
-            return str(exc), 404
+            return None, 404
 
     @api.expect(movie)
     @api.response(204, 'Movie successfully updated.')
@@ -73,20 +86,28 @@ class MovieItem(Resource):
         """
         try:
             data = request.json
-            movie_rpc.call(id=id, data=data, http_method='PATCH')
-            return None, 204
+            response = movie_rpc.call(id=id, data=data, http_method='PATCH').decode('utf8')
+            if 'exception' in response:
+                logger.warning(response['exception'])
+                return {'error': response['exception']}, response['code']
+            else:
+                return None, 204
         except Exception as exc:
             logger.warning(exc)
-            return str(exc), 404
+            return None, 404
 
-    @api.response(204, 'Movie successfully deleted.')
+    @api.response(200, 'Movie successfully deleted.')
     def delete(self, id):
         """
         Make DELETE request to remove movie item from movies database.
         """
         try:
-            movie_rpc.call(id=id, http_method='DELETE')
-            return None, 204
+            response = movie_rpc.call(id=id, http_method='DELETE').decode('utf8')
+            if 'exception' in response:
+                logger.warning(response['exception'])
+                return {'error': response['exception']}, response['code']
+            else:
+                return None, 200
         except Exception as exc:
             logger.warning(exc)
-            return str(exc), 404
+            return None, 404

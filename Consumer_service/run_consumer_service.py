@@ -2,7 +2,7 @@ import logging
 from flask import Flask
 from Consumer_service import settings
 from Consumer_service.models.movie import db
-from Consumer_service.services.receive import ConsumerRPC
+from Consumer_service.services.consumer_handler import ConsumerRPC
 
 app = Flask(__name__)
 
@@ -23,8 +23,11 @@ def initialize_app(flask_app, migrate=False):
     configure_app(flask_app)
     db.init_app(flask_app)
     flask_app.app_context().push()
-    start_consumer = ConsumerRPC()
-    start_consumer.call()
+    start_consumer_1 = ConsumerRPC()
+    # start_consumer_2 = ConsumerRPC()
+
+    start_consumer_1.call()
+    # start_consumer_2.call()
 
     if migrate:
         return app
@@ -32,7 +35,7 @@ def initialize_app(flask_app, migrate=False):
 
 def main():
     initialize_app(app)
-    app.run(debug=settings.FLASK_DEBUG)
+    # app.run(debug=settings.FLASK_DEBUG)
 
 
 if __name__ == "__main__":
