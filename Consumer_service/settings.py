@@ -9,7 +9,18 @@ logging.basicConfig(level=logging.INFO, format=logging_format)
 
 SQLALCHEMY_ECHO = False
 SQLALCHEMY_TRACK_MODIFICATIONS = True
-SQLALCHEMY_DATABASE_URI = "postgresql://postgres:d3ned1xxx@localhost:5432/mydb"
+
+DB_HOST = 'localhost'
+DB_PORT = 5432
+DB_NAME = 'mydb'
+USER = 'postgres'
+PASSWORD = 'password'
+
+SQLALCHEMY_DATABASE_URI = "postgresql://{0}:{1}@{2}:{3}/{4}".format(USER,
+                                                                    PASSWORD,
+                                                                    DB_HOST,
+                                                                    DB_PORT,
+                                                                    DB_NAME)
 
 FLASK_SERVER_NAME = 'localhost:8000'
 FLASK_DEBUG = True  # Do not use debug mode in production
