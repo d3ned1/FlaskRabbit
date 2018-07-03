@@ -1,4 +1,6 @@
 import logging
+from threading import Thread
+
 from flask import Flask
 
 import consumer_settings
@@ -24,10 +26,11 @@ def initialize_app(flask_app, migrate=False):
     configure_app(flask_app)
     db.init_app(flask_app)
     if not migrate:
-        flask_app.app_context().push()
         start_consumer_1 = ConsumerRPC()
         # start_consumer_2 = ConsumerRPC()
-        start_consumer_1.call()
+        th = Thread(target=start_consumer_1.call, args=(flask_app, ), daemon=True)
+        th.start()
+        # start_consumer_1.call()
         # start_consumer_2.call()
 
     if migrate:
@@ -36,7 +39,7 @@ def initialize_app(flask_app, migrate=False):
 
 def main():
     initialize_app(app)
-    # app.run(debug=settings.FLASK_DEBUG)
+    app.run(debug=consumer_settings.FLASK_DEBUG)
 
 
 if __name__ == "__main__":

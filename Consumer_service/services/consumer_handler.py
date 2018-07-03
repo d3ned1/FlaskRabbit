@@ -60,7 +60,8 @@ class ConsumerRPC(object):
 
         self.channel.basic_qos(prefetch_count=1)
 
-    def call(self):
+    def call(self, flask_app):
+        flask_app.app_context().push()
         self.channel.basic_consume(self.on_request, queue='rpc_queue')
         logger.info(" [ ... ] Waiting for incoming data [ ... ]")
         self.channel.start_consuming()
