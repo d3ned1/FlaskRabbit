@@ -1,6 +1,8 @@
 from flask import Flask, Blueprint
 import api_settings
-from api.endpoints.movies import namespace
+from api.endpoints.movies import movies_namespace
+from api.endpoints.amovies import amovies_namespace
+from api.endpoints.get_result import get_result_movies_namespace
 from api.api import api
 import logging
 
@@ -22,7 +24,10 @@ def initialize_app(flask_app):
 
     blueprint = Blueprint('api', __name__, url_prefix='/api')
     api.init_app(blueprint)
-    api.add_namespace(namespace)
+    api.add_namespace(movies_namespace)
+    api.add_namespace(amovies_namespace)
+    api.add_namespace(get_result_movies_namespace)
+
     flask_app.register_blueprint(blueprint)
 
 

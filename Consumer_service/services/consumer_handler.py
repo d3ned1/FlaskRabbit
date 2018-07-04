@@ -72,7 +72,9 @@ class ConsumerRPC(object):
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', port=5672))
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue='rpc_queue')
-
+        self.id = None
+        self.http_method = None
+        self.data = None
         self.channel.basic_qos(prefetch_count=1)
 
     def call(self, flask_app):
@@ -89,11 +91,14 @@ class ConsumerRPC(object):
             self.response = {'exception': 'Problem due to receiving: {}'.format(exc), 'code': 500}
             logger.warning(" [ ! ] Problem due to receiving: {} [ ! ]".format(exc))
         if body:
-            http_method = body['method']
-            data = body['data']
-            id = body['id']
+            if 'method' in body:
+                self.http_method = body['method']
+            if 'data' in body:
+                self.data = body['data']
+            if 'id' in body:
+                self.id = body['id']
             try:
-                self.response = process_body(id, data, http_method)
+                self.response = process_body(self.id, self.data, self.http_method)
             except Exception as exc:
                 logger.warning(exc)
                 self.response = {'exception': str(exc), 'code': 500}

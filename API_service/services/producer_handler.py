@@ -31,3 +31,32 @@ class MovieRPC(object):
         while self.response is None:
             self.connection.process_data_events()
         return self.response
+
+class AMovieRPC(object):
+
+    def __init__(self):
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', port=5672))
+        self.channel = self.connection.channel()
+        result = self.channel.queue_declare(exclusive=True)
+        self.callback_queue = result.method.queue
+        self.channel.basic_consume(self.on_response, no_ack=True,
+                                   queue=self.callback_queue)
+
+    def on_response(self, channel, method, props, body):
+        if self.correllation_id == props.correlation_id:
+            self.response = body
+
+    def call(self, id=None, http_method=None, data=None):
+        self.response = None
+        self.correllation_id = str(uuid.uuid4())
+        self.channel.basic_publish(exchange='',
+                                   routing_key='a_rpc_queue',
+                                   properties=pika.BasicProperties(
+                                       reply_to=self.callback_queue,
+                                       correlation_id=self.correllation_id,
+                                       content_type='application/json'
+                                       ),
+                                   body=json.dumps({'id': id, 'method': http_method, 'data': data}))
+        while self.response is None:
+            self.connection.process_data_events()
+        return self.response

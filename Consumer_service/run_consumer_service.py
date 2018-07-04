@@ -27,15 +27,15 @@ def initialize_app(flask_app, migrate=False):
     configure_app(flask_app)
     db.init_app(flask_app)
     if not migrate:
-        start_consumer_1 = ConsumerRPC()
-        thread = Thread(target=start_consumer_1.call, args=(flask_app, ), daemon=True)
-        thread.start()
+        # start_consumer_1 = ConsumerRPC()
+        # thread = Thread(target=start_consumer_1.call, args=(flask_app, ), daemon=True)
+        # thread.start()
         # start_consumer_1.call(app)
 
-        # start_consumer_2 = RedisConsumerRPC()
+        start_consumer_2 = RedisConsumerRPC()
         # thread2 = Thread(target=start_consumer_2.call, args=(flask_app, ), daemon=True)
         # thread2.start()
-        # start_consumer_2.call()
+        start_consumer_2.call(app)
 
     if migrate:
         return app

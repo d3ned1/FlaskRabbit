@@ -1,15 +1,19 @@
 import json
 import logging
+import time
+
 import pika
 import redis
 
+import consumer_settings
 from models.movie import Movie
 from resources.movieResource import create_movie, delete_movie, update_movie
 
 logger = logging.getLogger(__name__)
 
 
-def process_body(id, data, http_method, ):
+def process_body_to_redis(id, data, http_method, ):
+    time.sleep(10)
     response = 'Empty response'
     if http_method == 'GET':
         if id is not None:
@@ -57,17 +61,27 @@ class RedisConsumerRPC(object):
         self.response = {}
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', port=5672))
         self.channel = self.connection.channel()
-        self.channel.queue_declare(queue='rpc_queue')
-
+        self.channel.queue_declare(queue='a_rpc_queue')
+        self.redis_client = redis.Redis(host=consumer_settings.REDIS_HOST, port=consumer_settings.REDIS_PORT, db=consumer_settings.REDIS_DB)
         self.channel.basic_qos(prefetch_count=1)
 
     def call(self, flask_app):
         flask_app.app_context().push()
-        self.channel.basic_consume(self.on_request, queue='rpc_queue')
+        self.channel.basic_consume(self.on_request, queue='a_rpc_queue')
         logger.info(" [ ... ] Waiting for incoming data [ ... ]")
         self.channel.start_consuming()
 
     def on_request(self, chan, method, props, body):
+        chan.basic_publish(exchange='',
+                           routing_key=props.reply_to,
+                           properties=pika.BasicProperties(correlation_id=props.correlation_id,
+                                                           content_type='application/json'
+                                                           ),
+                           body=json.dumps({'correlation_id': props.correlation_id}))
+        chan.basic_ack(delivery_tag=method.delivery_tag)
+        self.processor(chan, method, props, body)
+
+    def processor(self, chan, method, props, body):
         try:
             body = json.loads(body.decode('utf8'))
             logger.info(" [ --> ] Received body {} [ OK ]".format(body))
@@ -79,21 +93,11 @@ class RedisConsumerRPC(object):
             data = body['data']
             id = body['id']
             try:
-                self.response = process_body(id, data, http_method)
+                self.response = process_body_to_redis(id, data, http_method)
+                self.redis_client.set(props.correlation_id, json.dumps(self.response))
             except Exception as exc:
                 logger.warning(exc)
                 self.response = {'exception': str(exc), 'code': 500}
         else:
             self.response = {'exception': 'Empty body received', 'code': 500}
-
-        chan.basic_publish(exchange='',
-                           routing_key=props.reply_to,
-                           properties=pika.BasicProperties(correlation_id=props.correlation_id,
-                                                           content_type='application/json'
-                                                           ),
-                           body=json.dumps(self.response))
-        chan.basic_ack(delivery_tag=method.delivery_tag)
         logger.info(" [ <-- ]  Returned correlation id {} [ OK ]".format(props.correlation_id))
-
-# new = RedisConsumerRPC()
-# new.call()
