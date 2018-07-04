@@ -1,6 +1,7 @@
 import json
 import logging
 import pika
+from sqlalchemy import extract
 
 from models.movie import Movie
 from resources.movieResource import create_movie, delete_movie, update_movie
@@ -19,14 +20,28 @@ def process_body(id, data, http_method, ):
                 response = {'exception': str(exc), 'code': 404}
         elif id is None:
             try:
-                movie_query = Movie.query.order_by('id').paginate(page=data['page'], per_page=data['per_page'])
-                response = {
-                    "items": [i.serialize for i in movie_query.items],
-                    "page": movie_query.page,
-                    "pages": movie_query.pages,
-                    "per_page": movie_query.per_page,
-                    "total": movie_query.total
-                }
+                if 'filters' in data:
+                    filters = data['filters']
+                    movie_query = Movie.query.filter(extract('year', Movie.year) == filters['year'])\
+                        .order_by('year').paginate(
+                        page=data['page'],
+                        per_page=data['per_page'])
+                    response = {
+                        "items": [i.serialize for i in movie_query.items],
+                        "page": movie_query.page,
+                        "pages": movie_query.pages,
+                        "per_page": movie_query.per_page,
+                        "total": movie_query.total
+                    }
+                else:
+                    movie_query = Movie.query.order_by('id').paginate(page=data['page'], per_page=data['per_page'])
+                    response = {
+                        "items": [i.serialize for i in movie_query.items],
+                        "page": movie_query.page,
+                        "pages": movie_query.pages,
+                        "per_page": movie_query.per_page,
+                        "total": movie_query.total
+                    }
             except Exception as exc:
                 logger.warning(exc)
                 response = {'exception': str(exc), 'code': 404}

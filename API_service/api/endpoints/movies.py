@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 
@@ -20,7 +21,6 @@ movie_rpc = MovieRPC()
 @api.response(404, 'Movies not found.')
 class MovieResource(Resource):
     @api.expect(pagination_arguments)
-    @api.marshal_with(page_of_movies)
     def get(self):
         """
         Make GET request to obtain a list of available movies.
@@ -29,14 +29,19 @@ class MovieResource(Resource):
             args = pagination_arguments.parse_args(request)
             page = args.get('page', 1)
             per_page = args.get('per_page', 10)
-            data = {'page': page, 'per_page': per_page}
+            data = {'page': page, 'per_page': per_page, }
+            if args.get('year') and args.get('year') is not None:
+                filter_by_year = datetime.datetime.strftime(args.get('year'), "%Y")
+                data.update({'filters': {'year': filter_by_year, }})
             movies_query = movie_rpc.call(http_method='GET', data=data)
             movies_page = json.loads(movies_query.decode('utf8'))
             if 'exception' in movies_page:
                 logger.warning(movies_page['exception'])
-                return {'error': movies_page['exception']}, movies_page['code']
-            else:
+                return {'exception': movies_page['exception']}, movies_page['code']
+            elif movies_page['items']:
                 return movies_page
+            else:
+                return {'response': 'Empty response'}, 404
         except Exception as exc:
             logger.warning(exc)
             return None, 404
@@ -51,7 +56,7 @@ class MovieResource(Resource):
             response = movie_rpc.call(data=request.json, http_method='POST').decode('utf8')
             if 'exception' in response:
                 logger.warning(response['exception'])
-                return {'error': response['exception']}, response['code']
+                return {'exception': response['exception']}, response['code']
             else:
                 return None, 204
         except Exception as exc:
@@ -71,7 +76,7 @@ class MovieItem(Resource):
             response = json.loads(movie_rpc.call(id=id, http_method='GET').decode('utf8'))
             if 'exception' in response:
                 logger.warning(response['exception'])
-                return {'error': response['exception']}, response['code']
+                return {'exception': response['exception']}, response['code']
             else:
                 return response, 200
         except Exception as exc:
@@ -89,7 +94,7 @@ class MovieItem(Resource):
             response = movie_rpc.call(id=id, data=data, http_method='PATCH').decode('utf8')
             if 'exception' in response:
                 logger.warning(response['exception'])
-                return {'error': response['exception']}, response['code']
+                return {'exception': response['exception']}, response['code']
             else:
                 return None, 204
         except Exception as exc:
@@ -105,7 +110,7 @@ class MovieItem(Resource):
             response = movie_rpc.call(id=id, http_method='DELETE').decode('utf8')
             if 'exception' in response:
                 logger.warning(response['exception'])
-                return {'error': response['exception']}, response['code']
+                return {'exception': response['exception']}, response['code']
             else:
                 return None, 200
         except Exception as exc:
