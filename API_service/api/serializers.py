@@ -4,7 +4,7 @@ from api.api import api
 movie = api.model('Movie', {
     'id': fields.Integer(readOnly=True, description='The unique identifier of a certain movie'),
     'title': fields.String(required=True, description='Movie title'),
-    'year': fields.Date(required=True, description='Production year'),
+    'year': fields.Integer(required=True, description='Production year'),
     'length': fields.Integer(required=True, description='Picture length (min)'),
     'rate': fields.Float(required=True, description='Movie IMDB rate'),
 })

@@ -8,7 +8,10 @@ def create_movie(data):
     rate = data.get('rate')
     movie = Movie(title, year, length, rate)
     db.session.add(movie)
+    db.session.flush()
+    db.session.refresh(movie)
     db.session.commit()
+    return movie.id
 
 
 def update_movie(id, data):

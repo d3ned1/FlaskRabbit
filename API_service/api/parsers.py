@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from flask_restplus import reqparse
 
 pagination_arguments = reqparse.RequestParser()
@@ -12,9 +10,9 @@ pagination_arguments.add_argument('page',
 pagination_arguments.add_argument('per_page',
                                   type=int,
                                   required=False,
-                                  choices=[2, 10, 20, 30, 40, 50, 100],
-                                  default=20, help='Results per page')
+                                  choices=[10, 20, 40, 80, 200],
+                                  help='Results per page')
 
-pagination_arguments.add_argument('year', type=lambda x: datetime.strptime(x, '%Y'),
+pagination_arguments.add_argument('year', type=int,
                                   required=False,
                                   help='Filter by date')

@@ -3,7 +3,6 @@ from threading import Thread
 from flask import Flask
 import consumer_settings
 from models.movie import db
-from services.consumer_redis_handler import RedisConsumerRPC
 from services.consumer_handler import ConsumerRPC
 
 app = Flask(__name__)
@@ -25,19 +24,14 @@ def initialize_app(flask_app, migrate=False):
     configure_app(flask_app)
     db.init_app(flask_app)
     if not migrate:
-        # start_consumer_1 = ConsumerRPC()
-        # thread = Thread(target=start_consumer_1.call, args=(flask_app, ), daemon=True)
-        # thread.start()
-        # start_consumer_1.call(app)
-
-        start_consumer_2 = RedisConsumerRPC()
-        thread2 = Thread(target=start_consumer_2.call, args=(flask_app, ), daemon=True)
-        thread2.start()
+        start_consumer_1 = ConsumerRPC()
+        thread1 = Thread(target=start_consumer_1.call, args=(flask_app, ), daemon=True)
+        thread1.start()
         # start_consumer_2.call(app)
 
-        start_consumer_3 = RedisConsumerRPC()
-        thread3 = Thread(target=start_consumer_3.call, args=(flask_app,), daemon=True)
-        thread3.start()
+        start_consumer2 = ConsumerRPC()
+        thread2 = Thread(target=start_consumer2.call, args=(flask_app,), daemon=True)
+        thread2.start()
 
     if migrate:
         return app

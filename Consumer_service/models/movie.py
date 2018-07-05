@@ -1,5 +1,6 @@
 import datetime
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import CheckConstraint
 
 db = SQLAlchemy()
 
@@ -10,7 +11,11 @@ class Movie(db.Model):
     title = db.Column(db.String(255), unique=False, nullable=False)
     rate = db.Column(db.Float, unique=False, nullable=False)
     length = db.Column(db.Integer, unique=False, nullable=False)
-    year = db.Column(db.Date, unique=False, nullable=False)
+    year = db.Column(db.Integer, unique=False, nullable=False)
+    __table_args__ = (
+        CheckConstraint(rate >= 1, name='rate_greater_1'),
+        CheckConstraint(year >= 1888, name='film_year_greater_1888'),
+        {})
 
     def __init__(self, title, year, length, rate):
         self.title = title
@@ -28,5 +33,5 @@ class Movie(db.Model):
             'title': self.title,
             'rate': self.rate,
             'length': self.length,
-            'year': datetime.datetime.strftime(self.year, "%Y-%m-%d"),
+            'year': self.year,
         }

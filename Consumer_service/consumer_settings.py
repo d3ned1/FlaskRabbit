@@ -23,7 +23,7 @@ SQLALCHEMY_DATABASE_URI = "postgresql://{0}:{1}@{2}:{3}/{4}".format(USER,
                                                                     DB_NAME)
 
 FLASK_SERVER_NAME = 'localhost:8000'
-FLASK_DEBUG = True  # Do not use debug mode in production
+FLASK_DEBUG = False  # Do not use debug mode in production
 
 RESTPLUS_SWAGGER_UI_DOC_EXPANSION = 'list'
 RESTPLUS_VALIDATE = True
