@@ -20,6 +20,7 @@ amovie_rpc = AMovieRPC()
 @amovies_namespace.route('/')
 @api.response(404, 'Movies not found.')
 class MovieResource(Resource):
+    @api.response(200, 'Success.')
     @api.expect(pagination_arguments)
     def get(self):
         """
@@ -39,7 +40,7 @@ class MovieResource(Resource):
                 logger.warning(correlation_id['exception'])
                 return {'exception': correlation_id['exception']}, correlation_id['code']
             elif 'correlation_id' in correlation_id:
-                return correlation_id
+                return correlation_id, 200
             else:
                 return {'response': 'Empty response'}, 404
         except Exception as exc:

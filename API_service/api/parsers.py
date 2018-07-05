@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask_restplus import reqparse, inputs
+from flask_restplus import reqparse
 
 pagination_arguments = reqparse.RequestParser()
 pagination_arguments.add_argument('page',

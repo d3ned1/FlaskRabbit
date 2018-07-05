@@ -1,13 +1,9 @@
-import datetime
 import json
 import logging
 import redis
 from API_service import api_settings
 
-from flask import request
 from flask_restplus import Resource
-from api.serializers import movie, page_of_movies
-from api.parsers import pagination_arguments
 from api.api import api
 
 from services.producer_handler import AMovieRPC
@@ -21,19 +17,16 @@ redis_client = redis.Redis(host=api_settings.REDIS_HOST, port=api_settings.REDIS
                                 db=api_settings.REDIS_DB)
 
 
-@get_result_movies_namespace.route('/<string:correlation_id>')
+@get_result_movies_namespace.route('/<string:uuid>')
 @api.response(404, 'Rusult can not be found.')
 class MovieItem(Resource):
-    # @api.marshal_with(movie)
-    # @api.expect(pagination_arguments)
-    # print(redis_client.get('STRING'))
 
-    def get(self, correlation_id):
+    def get(self, uuid):
         """
         Make specified GET request using ID to obtain particular movie item.
         """
         try:
-            response = json.loads(redis_client.get(correlation_id))
+            response = json.loads(redis_client.get(uuid))
             if 'exception' in response:
                 logger.warning(response['exception'])
                 return {'exception': response['exception']}, response['code']

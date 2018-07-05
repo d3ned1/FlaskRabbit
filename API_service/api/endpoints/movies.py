@@ -67,6 +67,7 @@ class AMovieResource(Resource):
 @movies_namespace.route('/<int:id>')
 @api.response(404, 'Movie can not be found.')
 class AMovieItem(Resource):
+    @api.response(200, 'Success.')
     @api.marshal_with(movie)
     def get(self, id):
         """

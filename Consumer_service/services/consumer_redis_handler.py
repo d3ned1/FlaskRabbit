@@ -5,6 +5,8 @@ import time
 import pika
 import redis
 
+from sqlalchemy import extract
+
 import consumer_settings
 from models.movie import Movie
 from resources.movieResource import create_movie, delete_movie, update_movie
@@ -24,14 +26,28 @@ def process_body_to_redis(id, data, http_method, ):
                 response = {'exception': str(exc), 'code': 404}
         elif id is None:
             try:
-                movie_query = Movie.query.order_by('id').paginate(page=data['page'], per_page=data['per_page'])
-                response = {
-                    "items": [i.serialize for i in movie_query.items],
-                    "page": movie_query.page,
-                    "pages": movie_query.pages,
-                    "per_page": movie_query.per_page,
-                    "total": movie_query.total
-                }
+                if 'filters' in data:
+                    filters = data['filters']
+                    movie_query = Movie.query.filter(extract('year', Movie.year) == filters['year'])\
+                        .order_by('year').paginate(
+                        page=data['page'],
+                        per_page=data['per_page'])
+                    response = {
+                        "items": [i.serialize for i in movie_query.items],
+                        "page": movie_query.page,
+                        "pages": movie_query.pages,
+                        "per_page": movie_query.per_page,
+                        "total": movie_query.total
+                    }
+                else:
+                    movie_query = Movie.query.order_by('id').paginate(page=data['page'], per_page=data['per_page'])
+                    response = {
+                        "items": [i.serialize for i in movie_query.items],
+                        "page": movie_query.page,
+                        "pages": movie_query.pages,
+                        "per_page": movie_query.per_page,
+                        "total": movie_query.total
+                    }
             except Exception as exc:
                 logger.warning(exc)
                 response = {'exception': str(exc), 'code': 404}
@@ -79,9 +95,8 @@ class RedisConsumerRPC(object):
                                                            ),
                            body=json.dumps({'correlation_id': props.correlation_id}))
         chan.basic_ack(delivery_tag=method.delivery_tag)
-        self.processor(chan, method, props, body)
+        logger.info(" [ <-- ]  Returned correlation id {} [ OK ]".format(props.correlation_id))
 
-    def processor(self, chan, method, props, body):
         try:
             body = json.loads(body.decode('utf8'))
             logger.info(" [ --> ] Received body {} [ OK ]".format(body))
@@ -93,11 +108,11 @@ class RedisConsumerRPC(object):
             data = body['data']
             id = body['id']
             try:
+                self.redis_client.set(props.correlation_id, json.dumps({'message': 'Please wait, task in progress'}))
                 self.response = process_body_to_redis(id, data, http_method)
-                self.redis_client.set(props.correlation_id, json.dumps(self.response))
+                self.redis_client.set(props.correlation_id, json.dumps(self.response), 60)
             except Exception as exc:
                 logger.warning(exc)
                 self.response = {'exception': str(exc), 'code': 500}
         else:
             self.response = {'exception': 'Empty body received', 'code': 500}
-        logger.info(" [ <-- ]  Returned correlation id {} [ OK ]".format(props.correlation_id))
