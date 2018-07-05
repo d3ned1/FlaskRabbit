@@ -9,6 +9,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 FLASK_SERVER_NAME = 'localhost:8001'
 FLASK_DEBUG = False  # Do not use debug mode in production
 
+RABBIT_HOST = 'localhost'
+RABBIT_PORT = 5672
+
 RESTPLUS_SWAGGER_UI_DOC_EXPANSION = 'list'
 RESTPLUS_VALIDATE = True
 RESTPLUS_MASK_SWAGGER = False

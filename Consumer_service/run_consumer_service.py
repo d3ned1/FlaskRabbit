@@ -14,11 +14,6 @@ def configure_app(flask_app):
     flask_app.config['SERVER_NAME'] = consumer_settings.FLASK_SERVER_NAME
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = consumer_settings.SQLALCHEMY_DATABASE_URI
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = consumer_settings.SQLALCHEMY_TRACK_MODIFICATIONS
-    flask_app.config['SWAGGER_UI_DOC_EXPANSION'] = consumer_settings.RESTPLUS_SWAGGER_UI_DOC_EXPANSION
-    flask_app.config['RESTPLUS_VALIDATE'] = consumer_settings.RESTPLUS_VALIDATE
-    flask_app.config['RESTPLUS_MASK_SWAGGER'] = consumer_settings.RESTPLUS_MASK_SWAGGER
-    flask_app.config['ERROR_404_HELP'] = consumer_settings.RESTPLUS_ERROR_404_HELP
-
 
 def initialize_app(flask_app, migrate=False):
     configure_app(flask_app)

@@ -25,10 +25,8 @@ SQLALCHEMY_DATABASE_URI = "postgresql://{0}:{1}@{2}:{3}/{4}".format(USER,
 FLASK_SERVER_NAME = 'localhost:8000'
 FLASK_DEBUG = False  # Do not use debug mode in production
 
-RESTPLUS_SWAGGER_UI_DOC_EXPANSION = 'list'
-RESTPLUS_VALIDATE = True
-RESTPLUS_MASK_SWAGGER = False
-RESTPLUS_ERROR_404_HELP = False
+RABBIT_HOST = 'localhost'
+RABBIT_PORT = 5672
 
 REDIS_HOST = 'localhost'
 REDIS_DB = 15

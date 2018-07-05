@@ -18,7 +18,8 @@ logger = logging.getLogger(__name__)
 class ConsumerRPC(object):
     def __init__(self):
         self.response = {}
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', port=5672))
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=consumer_settings.RABBIT_HOST,
+                                                                            port=consumer_settings.RABBIT_PORT))
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue='a_rpc_queue')
         self.redis_client = redis.Redis(host=consumer_settings.REDIS_HOST, port=consumer_settings.REDIS_PORT,
@@ -62,7 +63,7 @@ class ConsumerRPC(object):
     def prepare_body_for_redis(self, item_id, data, http_method, props):
         self.redis_client.set(props.correlation_id, json.dumps({'message': 'Please wait, task in progress ...'}))
         response = {'message': 'Please wait, task in progress ...'}
-        time.sleep(10)
+        time.sleep(5)
         if http_method == 'GET':
             if item_id is not None:
                 try:

@@ -1,12 +1,14 @@
 import pika
 import json
 import uuid
+import api_settings
 
 
 class MovieRPC(object):
 
     def __init__(self):
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', port=5672))
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=api_settings.RABBIT_HOST,
+                                                                            port=api_settings.RABBIT_PORT))
         self.channel = self.connection.channel()
         result = self.channel.queue_declare(exclusive=True)
         self.callback_queue = result.method.queue
