@@ -15,12 +15,13 @@ def configure_app(flask_app):
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = consumer_settings.SQLALCHEMY_DATABASE_URI
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = consumer_settings.SQLALCHEMY_TRACK_MODIFICATIONS
 
+
 def initialize_app(flask_app, migrate=False):
     configure_app(flask_app)
     db.init_app(flask_app)
     if not migrate:
         start_consumer_1 = ConsumerRPC()
-        thread1 = Thread(target=start_consumer_1.call, args=(flask_app, ), daemon=True)
+        thread1 = Thread(target=start_consumer_1.call, args=(flask_app,), daemon=True)
         thread1.start()
         # start_consumer_2.call(app)
 
