@@ -13,7 +13,8 @@ class Movie(db.Model):
     length = db.Column(db.Integer, unique=False, nullable=False)
     year = db.Column(db.Integer, unique=False, nullable=False)
     __table_args__ = (
-        CheckConstraint(1 <= rate <= 10, name='rate_1_10'),
+        CheckConstraint(1 <= rate, name='rate_greater_1'),
+        CheckConstraint(rate <= 10, name='rate_less_10'),
         CheckConstraint(year >= 1888, name='film_year_greater_1888'),
         {})
 
