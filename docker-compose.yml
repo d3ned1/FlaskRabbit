@@ -1,50 +1,50 @@
-version: "3.2"
-services:
-  db:
-    image: postgres:9.6
-    volumes:
-    - db-data: /var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD:
-      POSTGRES_DB: mydb
+# version: "3.2"
+# services:
+#   db:
+#     image: postgres:9.6
+#     volumes:
+#     - db-data: /var/lib/postgresql/data
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD:
+#       POSTGRES_DB: mydb
 
-  rabbit:
-    image: rabbitmq:3-management
-    expose:
-      - "4369"
-      - "5672"
-      - "15672"
-      - "25672"
-    ports:
-      - "5672:5672"
+#   rabbit:
+#     image: rabbitmq:3-management
+#     expose:
+#       - "4369"
+#       - "5672"
+#       - "15672"
+#       - "25672"
+#     ports:
+#       - "5672:5672"
 
-  redis:
-    image: redis:3.2
-    ports:
-      - "6379:6379"
+#   redis:
+#     image: redis:3.2
+#     ports:
+#       - "6379:6379"
 
-  api_service:
-    build: ./API_service
-    command: python run_api_service.py
-    links:
-      - rabbit
-    ports:
-      - "8001:8001"
+#   api_service:
+#     build: ./API_service
+#     command: python run_api_service.py
+#     links:
+#       - rabbit
+#     ports:
+#       - "8001:8001"
 
-  consumer_service:
-    build: ./Consumer_service
-    command: python run_consumer_service.py
-    ports:
-      - "8000:8000"
-    links:
-      - redis
-      - rabbit
-      - db
-    depends_on:
-      - redis
-      - db
-      - rabbit
+#   consumer_service:
+#     build: ./Consumer_service
+#     command: python run_consumer_service.py
+#     ports:
+#       - "8000:8000"
+#     links:
+#       - redis
+#       - rabbit
+#       - db
+#     depends_on:
+#       - redis
+#       - db
+#       - rabbit
 
-volumes:
-  db-data:
+# volumes:
+#   db-data:
