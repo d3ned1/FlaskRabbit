@@ -33,7 +33,7 @@ class MovieResource(Resource):
                 filter_by_year = args.get('year')
                 data.update({'filters': {'year': filter_by_year, }})
             movies_query = movie_rpc.call(http_method='GET', data=data)
-            uuid = json.loads(movies_query.decode('utf8'))
+            uuid = json.loads(movies_query)
             if 'exception' in uuid:
                 logger.warning(uuid['exception'])
                 return {'exception': uuid['exception']}, uuid['code']
@@ -52,7 +52,7 @@ class MovieResource(Resource):
         Make POST request to create new movie object.
         """
         try:
-            response = movie_rpc.call(data=request.json, http_method='POST').decode('utf8')
+            response = movie_rpc.call(data=request.json, http_method='POST')
             response = json.loads(response)
             if 'exception' in response:
                 logger.warning(response['exception'])
@@ -73,7 +73,7 @@ class MovieItem(Resource):
         Make specified GET request using ID to obtain particular movie item.
         """
         try:
-            response = json.loads(movie_rpc.call(item_id=item_id, http_method='GET').decode('utf8'))
+            response = json.loads(movie_rpc.call(item_id=item_id, http_method='GET'))
             if 'exception' in response:
                 logger.warning(response['exception'])
                 return {'exception': response['exception']}, response['code']

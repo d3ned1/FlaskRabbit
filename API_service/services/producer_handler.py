@@ -20,7 +20,6 @@ class MovieRPC(object):
             self.response = body
 
     def call(self, item_id=None, http_method=None, data=None):
-        self.response = None
         self.correllation_id = str(uuid.uuid4())
         self.channel.basic_publish(exchange='',
                                    routing_key='a_rpc_queue',
@@ -30,6 +29,4 @@ class MovieRPC(object):
                                        content_type='application/json'
                                        ),
                                    body=json.dumps({'item_id': item_id, 'method': http_method, 'data': data}))
-        while self.response is None:
-            self.connection.process_data_events()
-        return self.response
+        return json.dumps({'uuid': self.correllation_id})
